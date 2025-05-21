@@ -1,0 +1,230 @@
+/* app.css - estilos principais do dashboard */
+
+:root {
+    --primary-color: #0a3d62;
+    --primary-dark: #072a43;
+    --secondary-color: #e67e22;
+    --secondary-dark: #c26719;
+    --light-gray: #f8f9fa;
+    --white: #ffffff;
+    --dark-gray: #343a40;
+    --border-radius: 10px;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 6px 18px rgba(0, 0, 0, 0.1);
+    --transition: 0.3s ease;
+}
+
+body.dashboard-page {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--light-gray);
+    color: var(--dark-gray);
+}
+
+.app-header {
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 0 30px;
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.app-header h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.main-nav {
+    display: flex;
+    align-items: center;
+}
+
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--white);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px;
+    margin-left: 15px;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links a {
+    color: var(--white);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color var(--transition);
+}
+
+.nav-links a:hover,
+.nav-links a.active-link {
+    color: var(--secondary-color);
+}
+
+#user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+#user-name {
+    font-weight: 500;
+}
+.btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color var(--transition), transform var(--transition);
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    border-radius: var(--border-radius);
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: var(--white);
+    transition: var(--transition);
+    border: none;
+    
+    border-radius: var(--border-radius);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: var(--white);
+    transition: var(--transition);
+    border: none;
+
+    border-radius: var(--border-radius);
+}
+
+.btn-secondary:hover {
+    background-color: var(--secondary-dark);
+}
+
+.main-container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+    min-height: calc(100vh - 189px);
+    display: flex;
+}
+
+.card {
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    padding: 20px;
+}
+
+.card-header {
+    border-bottom: 1px solid #ddd;
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+}
+
+.app-footer {
+    background-color: var(--primary-dark);
+    color: var(--white);
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+}
+
+.app-footer img {
+    max-height: 40px;
+}
+
+.alert {
+    padding: 12px 16px;
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.mt-3 {
+    margin-top: 1rem;
+}
+
+.mb-3 {
+    margin-bottom: 1rem;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+    }
+    .nav-toggle {
+        display: block;
+    }
+    #user-name {
+        display: none;
+    }
+    .main-container {
+        padding: 10px;
+    }
+}

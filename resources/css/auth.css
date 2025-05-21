@@ -1,0 +1,105 @@
+/* auth.css - estilos para login e cadastro */
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    padding: 2rem;
+}
+
+.auth-card {
+    background-color: #ffffff;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    max-width: 420px;
+    width: 100%;
+}
+
+.auth-card h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #0a3d62;
+    text-align: center;
+}
+
+.auth-subtitle {
+    font-size: 0.95rem;
+    color: #333;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.auth-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.auth-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    color: #0a3d62;
+}
+
+.auth-form input[type="text"],
+.auth-form input[type="email"],
+.auth-form input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.auth-form .checkbox-group {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.auth-form .checkbox-group input {
+    margin-right: 8px;
+}
+
+.auth-form .checkbox-group a {
+    color: #0a3d62;
+    text-decoration: underline;
+}
+
+.auth-form .btn {
+    width: 100%;
+    padding: 10px 0;
+    font-size: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.auth-form .btn-primary {
+    background-color: #0a3d62;
+    color: #fff;
+    border: none;
+}
+
+.auth-form .btn-primary:hover {
+    background-color: #072a43;
+}
+
+.auth-links {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.auth-links a {
+    color: #e67e22;
+    text-decoration: none;
+}
+
+.auth-links a:hover {
+    text-decoration: underline;
+}
