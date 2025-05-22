@@ -63,10 +63,26 @@
             font-weight: 500;
             margin-top: 5px;
         }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-img {
+            max-width: 180px;
+            height: auto;
+        }
+
+        
     </style>
 </head>
 <body>
     <div class="login-box">
+        <div class="logo-container">
+            <img src="{{ asset('images/BUSCAFOTO_PRTO.png') }}" alt="Logo Busca Foto" class="logo-img">
+        </div>
+
         <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
         <p>Entre com suas credenciais para acessar o sistema</p>
 

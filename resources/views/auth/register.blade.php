@@ -21,6 +21,7 @@
             box-shadow: var(--shadow-lg);
             width: 100%;
             max-width: 500px;
+            margin-top: 70px;
         }
         .register-box h2 {
             text-align: center;
@@ -69,10 +70,25 @@
             font-weight: 500;
             margin-top: 5px;
         }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-img {
+            max-width: 180px;
+            height: auto;
+        }
+
     </style>
 </head>
 <body>
     <div class="register-box">
+        <div class="logo-container">
+            <img src="{{ asset('images/BUSCAFOTO_PRTO.png') }}" alt="Logo Busca Foto" class="logo-img">
+        </div>
+
         <h2><i class="fas fa-user-plus"></i> Cadastro</h2>
         <p>Crie sua conta para acessar o sistema</p>
         @if ($errors->any())
