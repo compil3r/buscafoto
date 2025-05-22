@@ -50,6 +50,8 @@ Route::middleware(['auth'])->group(function () {
         // Upload de fotos
         Route::get('/upload', [RekognitionController::class, 'showUploadForm'])->name('upload.form');
         Route::post('/upload', [RekognitionController::class, 'uploadImages'])->name('upload.submit');
+        Route::get('/delete-all-faces', [RekognitionController::class, 'deleteAllFaces']);
+
     });
 
 

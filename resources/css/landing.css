@@ -305,3 +305,10 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+/* menor que 460 */
+@media (max-width: 460px) { 
+    .signup-btn{
+        display: none;
+    }
+}

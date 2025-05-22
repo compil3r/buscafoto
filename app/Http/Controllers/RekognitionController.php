@@ -184,13 +184,14 @@ class RekognitionController extends Controller
                     $externalImageId = $match['Face']['ExternalImageId'];
                     $matches[] = [
                         'key' => $externalImageId,
-                        //set first _ to / in url
-                        
-                        'url' => str_replace('_', '/', $this->s3->getObjectUrl($this->bucket, $externalImageId)),
+                        'url' => "https://compil3rtestbucket.s3.amazonaws.com/uploads/{$externalImageId}",
+                       // 'url' => str_replace('uploads_', 'uploads/', $this->s3->getObjectUrl($this->bucket, $externalImageId)),
                         'similarity' => $match['Similarity'],
                     ];
                 }
             }
+
+            // dd($matches);
 
             return view('rekognition.results', ['matches' => $matches]);
         } catch (AwsException $e) {
@@ -207,8 +208,7 @@ class RekognitionController extends Controller
             $result = $this->s3->getObject([
                 'Bucket' => $this->bucket,
                 //set first _ to / in key
-                'Key' => str_replace('_', '/', $key)
-                
+                'Key' => "uploads/{$key}"
             ]);
 
             $filename = basename($key);
@@ -222,43 +222,82 @@ class RekognitionController extends Controller
 
 
     public function downloadMultiple(Request $request)
-{
-    $keys = $request->input('keys', []);
-    if (empty($keys)) {
-        return back()->with('error', 'Nenhuma imagem selecionada.');
-    }
-
-    $zipFile = storage_path('app/public/download_' . time() . '.zip');
-    $zip = new \ZipArchive();
-
-    if ($zip->open($zipFile, \ZipArchive::CREATE) !== true) {
-        return back()->with('error', 'Não foi possível criar o arquivo zip.');
-    }
-    $addedFiles = 0;
-
-    foreach ($keys as $key) {
-        // dd($keys);
-        try {
-            $object = $this->s3->getObject([
-                'Bucket' => $this->bucket,
-                //set first _ to / in key
-                'Key' => str_replace('_', '/', $key)
-            ]);
-            $zip->addFromString(basename($key), $object['Body']);
-            $addedFiles++;
-
-        } catch (\Exception $e) {
-            continue;
+    {
+        $keys = $request->input('keys', []);
+        if (empty($keys)) {
+            return back()->with('error', 'Nenhuma imagem selecionada.');
         }
+    
+        $zipFile = storage_path('app/public/download_' . time() . '.zip');
+        $zip = new \ZipArchive();
+    
+        if ($zip->open($zipFile, \ZipArchive::CREATE) !== true) {
+            return back()->with('error', 'Não foi possível criar o arquivo zip.');
+        }
+    
+        $addedFiles = 0;
+    
+        foreach ($keys as $key) {
+            try {
+                // Corrigido: prefixo 'uploads/' incluído
+                $object = $this->s3->getObject([
+                    'Bucket' => $this->bucket,
+                    'Key' => "uploads/{$key}",
+                ]);
+    
+                // Nome limpo no ZIP
+                $zip->addFromString(basename($key), $object['Body']);
+                $addedFiles++;
+    
+            } catch (\Exception $e) {
+                \Log::warning("Erro ao baixar {$key}: " . $e->getMessage());
+                continue;
+            }
+        }
+    
+        $zip->close();
+    
+        if ($addedFiles === 0 || !file_exists($zipFile)) {
+            return back()->with('error', 'Não foi possível adicionar nenhuma imagem ao arquivo ZIP.');
+        }
+    
+        return response()->download($zipFile)->deleteFileAfterSend(true);
     }
+    
+public function deleteAllFaces()
+{
+    try {
+        $faceIds = [];
+        $params = [
+            'CollectionId' => $this->collectionId,
+            'MaxResults' => 4096,
+        ];
 
-    $zip->close();
+        do {
+            $response = $this->rekognition->listFaces($params);
+            $faceIds = array_merge($faceIds, array_map(fn($face) => $face['FaceId'], $response['Faces']));
+            $params['NextToken'] = $response['NextToken'] ?? null;
+        } while (!empty($params['NextToken']));
 
-    if ($addedFiles === 0 || !file_exists($zipFile)) {
-        return back()->with('error', 'Não foi possível adicionar nenhuma imagem ao arquivo ZIP.');
+        if (empty($faceIds)) {
+            return response()->json(['message' => 'Nenhuma face encontrada para deletar.']);
+        }
+
+        $deletedCount = 0;
+        foreach (array_chunk($faceIds, 1000) as $batch) {
+            $deleteResponse = $this->rekognition->deleteFaces([
+                'CollectionId' => $this->collectionId,
+                'FaceIds' => $batch,
+            ]);
+            $deletedCount += count($deleteResponse['DeletedFaces']);
+        }
+
+        return response()->json(['message' => "$deletedCount faces deletadas com sucesso."]);
+    } catch (\Exception $e) {
+        \Log::error("Erro ao deletar faces do Rekognition: " . $e->getMessage());
+        return response()->json(['message' => 'Erro ao deletar faces: ' . $e->getMessage()], 500);
     }
-
-    return response()->download($zipFile)->deleteFileAfterSend(true);
 }
+
 
 }
