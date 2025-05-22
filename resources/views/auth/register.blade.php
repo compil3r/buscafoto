@@ -76,15 +76,15 @@
         <h2><i class="fas fa-user-plus"></i> Cadastro</h2>
         <p>Crie sua conta para acessar o sistema</p>
         @if ($errors->any())
-        <div class="alert" style="background-color: #ffe5e5; color: #721c24; border: 1px solid #f5c6cb; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px;">
-            <strong>Erros encontrados:</strong>
-            <ul style="margin: 10px 0 0 20px; padding: 0; list-style: disc;">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+            <div class="alert" style="background-color: #ffe5e5; color: #721c24; border: 1px solid #f5c6cb; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px;">
+                <strong>Erros encontrados:</strong>
+                <ul style="margin: 10px 0 0 20px; padding: 0; list-style: disc;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <form method="POST" action="{{ route('register') }}">
             @csrf
             <div class="form-group">
@@ -95,6 +95,13 @@
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" value="{{ old('email') }}" required>
             </div>
+
+            <div class="form-group">
+                <label for="phone">Telefone (opcional)</label>
+                <input type="text" id="phone" name="phone" value="{{ old('phone') }}" placeholder="(00) 00000-0000">
+            </div>
+            
+
             <div class="form-group">
                 <label for="password">Senha</label>
                 <input type="password" id="password" name="password" required>
@@ -103,6 +110,11 @@
                 <label for="password_confirmation">Confirmar Senha</label>
                 <input type="password" id="password_confirmation" name="password_confirmation" required>
             </div>
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="accepts_marketing" name="accepts_marketing" {{ old('accepts_marketing') ? 'checked' : '' }}>
+                <label for="accepts_marketing">Aceito receber contatos de marketing</label>
+            </div>
+        
             <div class="form-group checkbox-group">
                 <input type="checkbox" id="terms" name="terms" required>
                 <label for="terms">Eu li e aceito os <a href="{{ url('terms') }}" target="_blank">Termos de Uso</a></label>
@@ -115,4 +127,30 @@
         </div>
     </div>
 </body>
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+    const phoneInput = document.getElementById('phone');
+
+    phoneInput.addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '').substring(0, 11); // Só números, máx 11 dígitos
+
+        if (value.length > 0) {
+            value = '(' + value;
+        }
+        if (value.length > 3) {
+            value = value.slice(0, 3) + ') ' + value.slice(3);
+        }
+        if (value.length > 10 && value.length <= 15) {
+            value = value.slice(0, 10) + '-' + value.slice(10);
+        } else if (value.length > 9) {
+            value = value.slice(0, 9) + '-' + value.slice(9);
+        }
+
+        e.target.value = value;
+    });
+});
+</script>
+
+    
 </html>

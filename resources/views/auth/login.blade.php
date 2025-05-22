@@ -70,6 +70,17 @@
         <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
         <p>Entre com suas credenciais para acessar o sistema</p>
 
+        @if ($errors->any())
+            <div class="alert" style="background-color: #ffe5e5; color: #721c24; border: 1px solid #f5c6cb; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px;">
+                <strong>Erros encontrados:</strong>
+                <ul style="margin: 10px 0 0 20px; padding: 0; list-style: disc;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         @if (session('status'))
             <div class="status-message success">{{ session('status') }}</div>
         @endif

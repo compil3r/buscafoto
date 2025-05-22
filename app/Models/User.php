@@ -22,6 +22,8 @@ class User extends Authenticatable
         'email',
         'password',
         'is_admin',
+        'phone',
+        'accepts_marketing', // novo campo
     ];
 
     /**
