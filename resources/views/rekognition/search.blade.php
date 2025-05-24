@@ -78,6 +78,13 @@
 <section id="search-section">
     <h2 class="mb-3"><i class="fas fa-search"></i> Buscar por Selfie</h2>
     <p class="text-muted">Envie sua selfie para encontrar fotos correspondentes em eventos.</p>
+    {{-- Eventos disponiveis FBV quarta-feira, upload completo. FBV quinta-feira, upload completo. FBV sexta-feira, upload em andamento --}}
+    <p class="text-muted">Eventos disponíveis: 
+        <ul>
+        <li><strong>FBV Quarta-feira ✅</strong></li>
+        <li><strong>FBV Quinta-feira ✅</strong></li>
+        <li><strong>FBV Sexta-feira ⏳</strong></li>
+    </ul></p>
 
     <form id="search-form" enctype="multipart/form-data">
         <label for="selfie-upload" class="dropzone-wrapper">
