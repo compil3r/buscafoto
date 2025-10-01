@@ -77,13 +77,13 @@
 @section('content')
 <section id="search-section">
     <h2 class="mb-3"><i class="fas fa-search"></i> Buscar por Selfie</h2>
-    <p class="text-muted">Envie sua selfie para encontrar fotos correspondentes em eventos.</p>
+    <p class="text-muted">Envie sua selfie para encontrar fotos correspondentes.</p>
     {{-- Eventos disponiveis FBV quarta-feira, upload completo. FBV quinta-feira, upload completo. FBV sexta-feira, upload em andamento --}}
     <p class="text-muted">Eventos disponíveis: 
         <ul>
-        <li><strong>FBV Quarta-feira ✅</strong></li>
-        <li><strong>FBV Quinta-feira ✅</strong></li>
-        <li><strong>FBV Sexta-feira ⏳</strong></li>
+        <li><strong>Feira Brasileira de Varejo [Maio/2025] ✅</strong></li>
+        <li><strong>Semana Caldeira ⏳ [Até 02/10]</strong></li>
+
     </ul></p>
 
     <form id="search-form" enctype="multipart/form-data">
