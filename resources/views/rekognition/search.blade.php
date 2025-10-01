@@ -81,8 +81,8 @@
     {{-- Eventos disponiveis FBV quarta-feira, upload completo. FBV quinta-feira, upload completo. FBV sexta-feira, upload em andamento --}}
     <p class="text-muted">Eventos disponíveis: 
         <ul>
-        <li><strong>Feira Brasileira de Varejo [Maio/2025] ✅</strong></li>
-        <li><strong>Semana Caldeira ⏳ [Até 02/10]</strong></li>
+        <li><strong>Feira Brasileira de Varejo ✅</strong></li>
+        <li><strong>Semana Caldeira ⏳</strong></li>
 
     </ul></p>
 
