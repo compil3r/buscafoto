@@ -3,6 +3,18 @@
 declare(strict_types=1);
 
 return [
+    /*
+    * Regras usadas pelo app (o pacote de idioma só tinha "attributes").
+    */
+    'required' => 'O campo :attribute é obrigatório.',
+    'file' => 'O campo :attribute deve ser um arquivo.',
+    'image' => 'O campo :attribute deve ser uma imagem (JPEG ou JPG).',
+    'mimes' => 'O campo :attribute deve ser um arquivo do tipo: :values.',
+    'uploaded' => 'O envio de :attribute falhou. Arquivo muito grande ou limite do PHP (upload_max_filesize / post_max_size) — aumente para pelo menos 32M e reinicie o servidor.',
+    'max' => [
+        'file' => 'O arquivo em :attribute não pode ser maior que :max quilobytes.',
+    ],
+
     'attributes' => [
         'address'                  => 'endereço',
         'affiliate_url'            => 'URL de afiliado',

@@ -3,23 +3,31 @@
 @section('content')
 <section id="upload-section" class="card p-4">
     <h2 class="mb-3"><i class="fas fa-upload"></i> Upload de Fotos</h2>
-    <p class="text-muted">Arraste ou selecione imagens para indexar rostos na base de dados.</p>
+    <p class="text-muted mb-2">Envie fotos em <strong>JPEG</strong> (direto da câmera). Cada arquivo é enviado <strong>um por vez</strong> ao servidor.</p>
+    <p class="text-muted small mb-3">Se todos os envios falharem, no terminal rode <code>php -i | grep size</code> e confira <code>upload_max_filesize</code> e <code>post_max_size</code> (use pelo menos <strong>64M</strong> no <code>php.ini</code> do mesmo PHP do <code>php artisan serve</code>).</p>
 
     <form action="{{ route('upload.submit') }}" method="POST" enctype="multipart/form-data" id="upload-form">
         @csrf
         <div id="dropzone" class="dropzone-area text-center mb-3">
-            <p class="mb-2">Arraste as imagens aqui ou clique para selecionar</p>
-            <input type="file" id="image-upload" name="images[]" accept="image/*" multiple hidden>
-            <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('image-upload').click()">
-                <i class="fas fa-folder-open"></i> Selecionar Imagens
+            <p class="mb-2">Arraste os JPEG aqui ou clique para selecionar</p>
+            <input type="file" id="image-upload" accept=".jpg,.jpeg,image/jpeg" multiple hidden>
+            <button type="button" class="btn btn-outline-primary" id="pick-files-btn">
+                <i class="fas fa-folder-open"></i> Selecionar JPEG
             </button>
         </div>
 
         <div id="file-list-upload" class="file-list mb-3"></div>
         <div id="image-preview-upload" class="image-preview-grid mb-3"></div>
 
+        <div id="upload-progress-wrap" class="mb-3 upload-progress-hidden">
+            <div class="progress-bar-outer">
+                <div id="upload-progress-fill" class="progress-bar-fill" style="width: 0%"></div>
+            </div>
+            <p id="upload-progress-label" class="text-muted small mt-2 mb-0"></p>
+        </div>
+
         <button type="submit" class="btn btn-secondary w-100" id="upload-button" disabled>
-            <i class="fas fa-cloud-upload-alt"></i> Enviar Imagens
+            <i class="fas fa-cloud-upload-alt"></i> Enviar fila
         </button>
 
         <div id="upload-status" class="status-message mt-3"></div>
@@ -81,22 +89,47 @@
         object-fit: cover;
         border-radius: 8px;
     }
+    .progress-bar-outer {
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    .progress-bar-fill {
+        height: 100%;
+        background: var(--primary-color, #1e88e5);
+        transition: width 0.2s ease;
+    }
+    .file-status-ok { color: #198754; }
+    .file-status-err { color: #dc3545; }
+    .upload-progress-hidden { display: none; }
 </style>
 @endsection
 
 @section('scripts')
 <script>
-    
     document.addEventListener('DOMContentLoaded', function () {
-        
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
         const uploadForm = document.getElementById('upload-form');
         const dropzone = document.getElementById('dropzone');
+        const pickFilesBtn = document.getElementById('pick-files-btn');
         const imageUploadInput = document.getElementById('image-upload');
         const fileListUpload = document.getElementById('file-list-upload');
         const imagePreviewUpload = document.getElementById('image-preview-upload');
         const uploadButton = document.getElementById('upload-button');
         const uploadStatus = document.getElementById('upload-status');
+        const progressWrap = document.getElementById('upload-progress-wrap');
+        const progressFill = document.getElementById('upload-progress-fill');
+        const progressLabel = document.getElementById('upload-progress-label');
+
         let selectedFiles = [];
+        let isUploading = false;
+
+        function isJpegFile(file) {
+            const t = (file.type || '').toLowerCase();
+            const n = (file.name || '').toLowerCase();
+            return t === 'image/jpeg' || n.endsWith('.jpg') || n.endsWith('.jpeg');
+        }
 
         const updateUI = () => {
             fileListUpload.innerHTML = '';
@@ -104,35 +137,47 @@
             selectedFiles.forEach((file, index) => {
                 const listItem = document.createElement('div');
                 listItem.className = 'file-list-item';
-                listItem.innerHTML = `<span>${file.name}</span><button type="button" class="remove-file-btn" data-index="${index}">&times;</button>`;
+                listItem.dataset.index = String(index);
+                listItem.innerHTML = `<span class="file-name">${file.name}</span><button type="button" class="remove-file-btn" data-index="${index}" ${isUploading ? 'disabled' : ''}>&times;</button>`;
                 fileListUpload.appendChild(listItem);
 
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const preview = document.createElement('div');
                     preview.className = 'image-preview-item';
-                    preview.innerHTML = `<img src="${e.target.result}" alt="preview">`;
+                    preview.innerHTML = `<img src="${e.target.result}" alt="">`;
                     imagePreviewUpload.appendChild(preview);
                 };
                 reader.readAsDataURL(file);
             });
-            uploadButton.disabled = selectedFiles.length === 0;
+            uploadButton.disabled = selectedFiles.length === 0 || isUploading;
         };
 
         fileListUpload.addEventListener('click', (e) => {
+            if (isUploading) return;
             if (e.target.classList.contains('remove-file-btn')) {
-                const index = parseInt(e.target.dataset.index);
+                const index = parseInt(e.target.dataset.index, 10);
                 selectedFiles.splice(index, 1);
                 updateUI();
             }
         });
 
         const handleFiles = (files) => {
-            [...files].forEach(file => {
-                if (file.type.startsWith('image/')) selectedFiles.push(file);
+            const skipped = [];
+            [...files].forEach((file) => {
+                if (isJpegFile(file)) {
+                    selectedFiles.push(file);
+                } else {
+                    skipped.push(file.name);
+                }
             });
+            if (skipped.length) {
+                uploadStatus.innerHTML = `<div class="alert alert-warning">Ignorados (somente JPEG): ${skipped.join(', ')}</div>`;
+            }
             updateUI();
         };
+
+        pickFilesBtn.addEventListener('click', () => imageUploadInput.click());
 
         dropzone.addEventListener('dragover', (e) => {
             e.preventDefault();
@@ -151,56 +196,90 @@
 
         imageUploadInput.addEventListener('change', () => {
             handleFiles(imageUploadInput.files);
-            imageUploadInput.value = null;
+            imageUploadInput.value = '';
         });
 
         uploadForm.addEventListener('submit', async function (e) {
-    e.preventDefault();
+            e.preventDefault();
+            if (selectedFiles.length === 0 || isUploading) return;
 
-    if (selectedFiles.length === 0) {
-        uploadStatus.innerHTML = '<div class="alert alert-danger">Selecione ao menos uma imagem.</div>';
-        return;
-    }
+            isUploading = true;
+            uploadButton.disabled = true;
+            progressWrap.classList.remove('upload-progress-hidden');
+            uploadStatus.innerHTML = '';
+            const queue = selectedFiles.slice();
+            const total = queue.length;
+            let ok = 0;
+            const failed = [];
+            const stillQueued = [];
 
-    const formData = new FormData();
-    selectedFiles.forEach(file => formData.append('images[]', file));
+            for (let i = 0; i < total; i++) {
+                const file = queue[i];
+                const pct = Math.round((i / total) * 100);
+                progressFill.style.width = pct + '%';
+                progressLabel.textContent = `Enviando ${i + 1} de ${total}: ${file.name}`;
 
-    uploadStatus.innerHTML = '<div class="alert alert-warning">Enviando imagens...</div>';
-    uploadButton.disabled = true;
+                const formData = new FormData();
+                formData.append('image', file);
+                formData.append('_token', csrfToken);
 
-    try {
-        const response = await fetch(uploadForm.action, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: formData
-        });
+                try {
+                    const response = await fetch(uploadForm.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        credentials: 'same-origin',
+                        body: formData,
+                    });
 
-        const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-        const html = await response.text();
-        console.error("❌ Recebeu HTML inesperado:", html);
-        return;
-        }
+                    const contentType = response.headers.get('content-type') || '';
+                    const payload = contentType.includes('application/json')
+                        ? await response.json()
+                        : null;
 
-        const result = await response.json();
+                    if (!response.ok) {
+                        let msg = 'Falha no envio';
+                        if (payload) {
+                            if (payload.errors) {
+                                const e = payload.errors;
+                                msg = Array.isArray(e) ? e.join(' ') : (typeof e === 'object' ? Object.values(e).flat().join(' ') : String(e));
+                            } else if (payload.message) {
+                                msg = payload.message;
+                            }
+                        }
+                        failed.push({ name: file.name, msg });
+                        stillQueued.push(file);
+                        continue;
+                    }
+                    ok++;
+                } catch (err) {
+                    failed.push({ name: file.name, msg: err.message || 'Erro de rede' });
+                    stillQueued.push(file);
+                }
+            }
 
-        if (response.ok) {
-            uploadStatus.innerHTML = `<div class="alert alert-success">${result.message || 'Imagens enviadas com sucesso!'}</div>`;
-            selectedFiles = [];
+            progressFill.style.width = '100%';
+            progressLabel.textContent = `Concluído: ${ok} de ${total} enviados.`;
+
+            if (failed.length === 0) {
+                uploadStatus.innerHTML = `<div class="alert alert-success">${ok} imagem(ns) enviada(s) e indexada(s).</div>`;
+                selectedFiles = [];
+            } else {
+                selectedFiles = stillQueued;
+                const lines = failed.map((f) => `<li class="file-status-err"><strong>${f.name}</strong>: ${f.msg}</li>`).join('');
+                uploadStatus.innerHTML = `<div class="alert alert-warning"><p class="mb-2">${ok} enviada(s), ${failed.length} falhou(aram). Ajuste e use <strong>Enviar fila</strong> de novo.</p><ul class="mb-0 ps-3">${lines}</ul></div>`;
+            }
+
+            progressWrap.classList.add('upload-progress-hidden');
+            progressFill.style.width = '0%';
+            progressLabel.textContent = '';
+
+            isUploading = false;
             updateUI();
-        } else {
-            throw new Error(result.message || 'Erro ao enviar as imagens.');
-        }
-    } catch (error) {
-        uploadStatus.innerHTML = `<div class="alert alert-danger">Erro: ${error.message}</div>`;
-    } finally {
-        uploadButton.disabled = selectedFiles.length === 0;
-    }
-});
-
-
+        });
     });
 </script>
 @endsection

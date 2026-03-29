@@ -78,11 +78,9 @@
 <section id="search-section">
     <h2 class="mb-3"><i class="fas fa-search"></i> Buscar por Selfie</h2>
     <p class="text-muted">Envie sua selfie para encontrar fotos correspondentes.</p>
-    {{-- Eventos disponiveis FBV quarta-feira, upload completo. FBV quinta-feira, upload completo. FBV sexta-feira, upload em andamento --}}
     <p class="text-muted">Eventos disponíveis: 
         <ul>
-        <li><strong>Feira Brasileira de Varejo ✅</strong></li>
-        <li><strong>Semana Caldeira ⏳</strong></li>
+        <li><strong>POA Fashion Week ⏳</strong></li>
 
     </ul></p>
 
