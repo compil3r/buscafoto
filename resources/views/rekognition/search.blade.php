@@ -80,7 +80,7 @@
     <p class="text-muted">Envie sua selfie para encontrar fotos correspondentes.</p>
     <p class="text-muted">Eventos disponíveis: 
         <ul>
-        <li><strong>POA Fashion Week ⏳</strong></li>
+        <li><strong>Semana S ✅</strong></li>
 
     </ul></p>
 
