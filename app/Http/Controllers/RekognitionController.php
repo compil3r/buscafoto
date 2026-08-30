@@ -89,8 +89,31 @@ class RekognitionController extends Controller
 
             return view('rekognition.gallery', ['images' => $images]);
         } catch (AwsException $e) {
-            return back()->with('error', 'Erro ao listar imagens: '.$e->getMessage());
+            return back()->with('error', $this->friendlyAwsErrorMessage($e, 'Não foi possível carregar a galeria agora. Tente novamente em instantes.'));
         }
+    }
+
+    /**
+     * Traduz uma exceção da AWS em uma mensagem amigável para o usuário,
+     * em vez de expor o erro técnico bruto retornado pela API.
+     */
+    private function friendlyAwsErrorMessage(AwsException $e, string $fallback = 'Não foi possível concluir a operação agora. Tente novamente em instantes.'): string
+    {
+        $code = $e->getAwsErrorCode();
+        $message = $e->getAwsErrorMessage() ?? '';
+
+        if ($code === 'InvalidParameterException' && str_contains($message, 'no faces')) {
+            return 'Não encontramos um rosto nessa foto. Tire a selfie com boa iluminação, olhando de frente para a câmera, e tente novamente.';
+        }
+
+        return match ($code) {
+            'InvalidImageFormatException' => 'Formato de imagem não suportado. Envie uma foto em JPEG ou PNG.',
+            'ImageTooLargeException' => 'Essa imagem é muito grande. Tente uma foto menor.',
+            'ProvisionedThroughputExceededException', 'ThrottlingException' => 'O sistema está muito ocupado agora. Aguarde alguns segundos e tente novamente.',
+            'AccessDeniedException', 'UnrecognizedClientException' => 'Não foi possível concluir a operação por um problema de configuração no servidor. Avise um administrador.',
+            'ResourceNotFoundException' => 'Não encontramos o acervo desse evento no servidor. Avise um administrador.',
+            default => $fallback,
+        };
     }
 
     /**
@@ -220,7 +243,7 @@ class RekognitionController extends Controller
                 'DetectionAttributes' => ['ALL'],
             ]);
         } catch (AwsException $e) {
-            return ['error' => $image->getClientOriginalName().': '.$e->getMessage()];
+            return ['error' => $image->getClientOriginalName().': '.$this->friendlyAwsErrorMessage($e, 'Não foi possível enviar essa imagem agora.')];
         }
 
         return [
@@ -271,7 +294,7 @@ class RekognitionController extends Controller
 
             return view('rekognition.results', ['matches' => $matches]);
         } catch (AwsException $e) {
-            return back()->with('error', 'Erro ao buscar: '.$e->getMessage());
+            return back()->with('error', $this->friendlyAwsErrorMessage($e, 'Não foi possível concluir a busca agora. Tente novamente em instantes.'));
         }
     }
 
@@ -293,7 +316,7 @@ class RekognitionController extends Controller
                 ->header('Content-Type', $result['ContentType'])
                 ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
         } catch (AwsException $e) {
-            return back()->with('error', 'Erro ao baixar imagem: '.$e->getMessage());
+            return back()->with('error', $this->friendlyAwsErrorMessage($e, 'Não foi possível baixar essa imagem agora.'));
         }
     }
 

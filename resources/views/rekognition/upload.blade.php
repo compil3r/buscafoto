@@ -1,17 +1,22 @@
 @extends('layouts.app')
 
 @section('content')
-<section id="upload-section" class="card p-4">
-    <h2 class="mb-3"><i class="fas fa-upload"></i> Upload de Fotos</h2>
-    <p class="text-muted mb-2">Envie fotos em <strong>JPEG</strong> (direto da câmera). Cada arquivo é enviado <strong>um por vez</strong> ao servidor.</p>
-    <p class="text-muted small mb-3">Se todos os envios falharem, no terminal rode <code>php -i | grep size</code> e confira <code>upload_max_filesize</code> e <code>post_max_size</code> (use pelo menos <strong>64M</strong> no <code>php.ini</code> do mesmo PHP do <code>php artisan serve</code>).</p>
+<div class="page-head">
+    <span class="eyebrow">Acervo do evento</span>
+    <h2><i class="fas fa-upload"></i> Upload de fotos</h2>
+    <p>Envie fotos em <strong>JPEG</strong> direto da câmera. Cada arquivo é enviado um por vez ao servidor.</p>
+</div>
+
+<section id="upload-section" class="card form-section">
+    <p class="mono-tag" style="margin-bottom:22px;">Se todos os envios falharem, confira <code>upload_max_filesize</code> e <code>post_max_size</code> no <code>php.ini</code> (use pelo menos 64M).</p>
 
     <form action="{{ route('upload.submit') }}" method="POST" enctype="multipart/form-data" id="upload-form">
         @csrf
-        <div id="dropzone" class="dropzone-area text-center mb-3">
-            <p class="mb-2">Arraste os JPEG aqui ou clique para selecionar</p>
+        <div id="dropzone" class="dropzone-area mb-3">
+            <i class="fas fa-film"></i>
+            <p>Arraste os JPEG aqui ou clique para selecionar</p>
             <input type="file" id="image-upload" accept=".jpg,.jpeg,image/jpeg" multiple hidden>
-            <button type="button" class="btn btn-outline-primary" id="pick-files-btn">
+            <button type="button" class="btn btn-outline btn-sm" id="pick-files-btn">
                 <i class="fas fa-folder-open"></i> Selecionar JPEG
             </button>
         </div>
@@ -23,10 +28,10 @@
             <div class="progress-bar-outer">
                 <div id="upload-progress-fill" class="progress-bar-fill" style="width: 0%"></div>
             </div>
-            <p id="upload-progress-label" class="text-muted small mt-2 mb-0"></p>
+            <p id="upload-progress-label" class="mono-tag mt-2 mb-0"></p>
         </div>
 
-        <button type="submit" class="btn btn-secondary w-100" id="upload-button" disabled>
+        <button type="submit" class="btn btn-primary btn-block" id="upload-button" disabled>
             <i class="fas fa-cloud-upload-alt"></i> Enviar fila
         </button>
 
@@ -35,7 +40,7 @@
 </section>
 
 @if (session('customErrors'))
-    <div class="alert alert-danger">
+    <div class="bf-alert bf-alert-danger">
         <ul class="mb-0">
             @foreach (session('customErrors') as $error)
                 <li>{{ $error }}</li>
@@ -44,66 +49,6 @@
     </div>
 @endif
 
-@endsection
-
-
-@section('styles')
-<style>
-    #upload-section {
-        max-width: 700px;
-        margin: 0 auto;
-    }
-    .dropzone-area {
-        border: 2px dashed var(--primary-color);
-        border-radius: 10px;
-        padding: 40px 20px;
-        cursor: pointer;
-        background-color: #f9f9f9;
-        transition: background-color 0.3s;
-    }
-    .dropzone-area.dragover {
-        background-color: #e3f2fd;
-    }
-    .file-list-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 5px 0;
-        border-bottom: 1px solid #eee;
-    }
-    .remove-file-btn {
-        background: none;
-        border: none;
-        color: #dc3545;
-        font-size: 1.2rem;
-        cursor: pointer;
-    }
-    .image-preview-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-        gap: 10px;
-    }
-    .image-preview-item img {
-        width: 100%;
-        height: 80px;
-        object-fit: cover;
-        border-radius: 8px;
-    }
-    .progress-bar-outer {
-        height: 8px;
-        background: #e9ecef;
-        border-radius: 4px;
-        overflow: hidden;
-    }
-    .progress-bar-fill {
-        height: 100%;
-        background: var(--primary-color, #1e88e5);
-        transition: width 0.2s ease;
-    }
-    .file-status-ok { color: #198754; }
-    .file-status-err { color: #dc3545; }
-    .upload-progress-hidden { display: none; }
-</style>
 @endsection
 
 @section('scripts')
@@ -172,7 +117,7 @@
                 }
             });
             if (skipped.length) {
-                uploadStatus.innerHTML = `<div class="alert alert-warning">Ignorados (somente JPEG): ${skipped.join(', ')}</div>`;
+                uploadStatus.innerHTML = `<div class="bf-alert bf-alert-warning">Ignorados (somente JPEG): ${skipped.join(', ')}</div>`;
             }
             updateUI();
         };
@@ -265,12 +210,12 @@
             progressLabel.textContent = `Concluído: ${ok} de ${total} enviados.`;
 
             if (failed.length === 0) {
-                uploadStatus.innerHTML = `<div class="alert alert-success">${ok} imagem(ns) enviada(s) e indexada(s).</div>`;
+                uploadStatus.innerHTML = `<div class="bf-alert bf-alert-success">${ok} imagem(ns) enviada(s) e indexada(s).</div>`;
                 selectedFiles = [];
             } else {
                 selectedFiles = stillQueued;
                 const lines = failed.map((f) => `<li class="file-status-err"><strong>${f.name}</strong>: ${f.msg}</li>`).join('');
-                uploadStatus.innerHTML = `<div class="alert alert-warning"><p class="mb-2">${ok} enviada(s), ${failed.length} falhou(aram). Ajuste e use <strong>Enviar fila</strong> de novo.</p><ul class="mb-0 ps-3">${lines}</ul></div>`;
+                uploadStatus.innerHTML = `<div class="bf-alert bf-alert-warning"><p class="mb-2">${ok} enviada(s), ${failed.length} falhou(aram). Ajuste e use <strong>Enviar fila</strong> de novo.</p><ul class="mb-0 ps-3">${lines}</ul></div>`;
             }
 
             progressWrap.classList.add('upload-progress-hidden');

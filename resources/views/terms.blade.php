@@ -2,34 +2,24 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Busca Foto :: Encontre sua foto!</title>
+    <title>Termos de Uso :: Busca Foto</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800|ibm-plex-mono:400,500,600" rel="stylesheet" />
+
     @vite('resources/css/landing.css')
-    <style>
-        main {
-            display: flex;
-            justify-content: center;
-        }
-
-        .terms-container {
-            max-width: 1200px;
-
-        }
-    </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="landing-page">
-    <header class="landing-header">
-        <div class="header-content">
-            <div class="logo-container">
-                <a href="/">
-                <img src="{{ asset('images/BUSCAFOTO_PRTO.png') }}" alt="Logo Busca Foto" class="logo">
-                </a>
-            </div>
-            <nav class="landing-nav">
-                <a href="{{ route('login') }}" class="nav-btn login-btn"><i class="fas fa-sign-in-alt"></i> Entrar</a>
-                <a href="{{ route('register') }}" class="nav-btn signup-btn"><i class="fas fa-user-plus"></i> Cadastrar</a>
+<body class="landing-page terms-page">
+    <header class="landing-header bf-header">
+        <div class="bf-header-inner">
+            <a href="/" class="bf-brand">
+                <img src="{{ asset('images/BUSCAFOTO_PRTO.png') }}" alt="Busca Foto">
+            </a>
+            <nav class="bf-nav" style="display:flex; position:static; background:transparent; border:0; padding:0; flex-direction:row;">
+                <a href="{{ route('login') }}"><i class="fas fa-sign-in-alt"></i> Entrar</a>
+                <a href="{{ route('register') }}"><i class="fas fa-user-plus"></i> Cadastrar</a>
             </nav>
         </div>
     </header>
@@ -143,16 +133,13 @@
         </section>
         
     </main>
-<footer class="app-footer">
-    <div class="footer-content">
-        <div class="footer-logo">
-            <img src="{{ asset('images/unisenac.png') }}" alt="Logo UniSenac">
-        </div>
-
-        <div class="footer-links">
+<footer class="app-footer bf-footer">
+    <div class="bf-footer-inner">
+        <img src="{{ asset('images/unisenac.png') }}" alt="Logo UniSenac">
+        <div class="bf-footer-links">
             <a href="/terms">Termos de Uso</a>
             <a href="https://senacrs.com.br">SENACRS</a>
-            <a href="mailto: contato@buscafoto.com.br">Contato</a>
+            <a href="mailto:contato@buscafoto.com.br">Contato</a>
         </div>
     </div>
 </footer>

@@ -1,0 +1,11 @@
+{
+    "version": "0.0.1",
+    "configurations": [
+        {
+            "name": "buscafoto-web",
+            "runtimeExecutable": "bash",
+            "runtimeArgs": ["-lc", "php artisan serve --port=8010 & npm run dev -- --port 5183"],
+            "port": 8010
+        }
+    ]
+}

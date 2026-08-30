@@ -2,114 +2,53 @@
 
 @section('styles')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
-<style>
-    #search-section {
-        max-width: 600px;
-        margin: 0 auto;
-        background-color: white;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    }
-    .dropzone-wrapper {
-        border: 2px dashed var(--primary-color);
-        padding: 30px;
-        text-align: center;
-        border-radius: 12px;
-        background-color: var(--light-gray);
-        cursor: pointer;
-        position: relative;
-        transition: background 0.3s;
-        display: block;
-    }
-    .dropzone-wrapper:hover {
-        background-color: #eaf1f8;
-    }
-    .dropzone-wrapper i {
-        font-size: 3rem;
-        color: var(--primary-color);
-    }
-    .dropzone-wrapper span {
-        display: block;
-        color: var(--dark-gray);
-        font-weight: 500;
-        margin-top: 10px;
-    }
-    #selfie-upload {
-        display: none;
-    }
-    .status-message {
-        padding: 10px;
-        border-radius: 6px;
-        display: none;
-        margin-top: 15px;
-    }
-    .status-message.success {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-        display: block;
-    }
-    .status-message.error {
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-        display: block;
-    }
-    .status-message.loading {
-        background-color: #fff3cd;
-        color: #856404;
-        border: 1px solid #ffeeba;
-        display: block;
-    }
-    #search-form {
-        text-align: center;
-    }
-    .image-preview img {
-        width: 60%;
-        border-radius: 8px;
-        margin-top: 10px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-</style>
 @endsection
 
 @section('content')
-<section id="search-section">
-    <h2 class="mb-3"><i class="fas fa-search"></i> Buscar por Selfie</h2>
-    <p class="text-muted">Envie sua selfie para encontrar fotos correspondentes.</p>
-    <p class="text-muted">Eventos disponíveis: 
-        <ul>
-        <li><strong>Semana S ✅</strong></li>
+<div class="page-head">
+    <span class="eyebrow">Reconhecimento facial</span>
+    <h2><i class="fas fa-search"></i> Buscar por selfie</h2>
+    <p>Envie sua selfie para encontrar as fotos em que você aparece.</p>
+</div>
 
-    </ul></p>
+<section id="search-section" class="card form-section">
+    <p class="mono-tag" style="margin-bottom:20px;">Eventos disponíveis: <strong style="color:var(--blue-mid)">Semana S</strong></p>
 
     <form id="search-form" enctype="multipart/form-data">
         <label for="selfie-upload" class="dropzone-wrapper">
             <i class="fas fa-camera"></i>
             <span id="file-name-search">Clique aqui ou arraste uma selfie</span>
-            <input type="file" id="selfie-upload" name="selfie" accept="image/*" capture="user">
+            <input type="file" id="selfie-upload" name="selfie" accept="image/*" capture="user" hidden>
         </label>
 
-        <div id="cropper-container" class="mt-3" style="display: none;">
-            <p class="mb-2">Ajuste o recorte para focar no rosto:</p>
-            <div class="border rounded p-2 text-center bg-light">
-                <img id="image-to-crop" src="#" alt="Imagem para recortar" style="max-width: 100%; border-radius: 8px;">
-            </div>
-            <button type="button" id="crop-button" class="btn btn-primary mt-3">
-                <i class="fas fa-crop-alt"></i> Confirmar Recorte
-            </button>
-        </div>
+        <div id="image-preview-search" class="image-preview mb-3"></div>
 
-        <div id="image-preview-search" class="image-preview text-center mb-3"></div>
-
-        <button type="submit" class="btn btn-secondary mt-3" id="search-button" style="display: none;">
-            <i class="fas fa-search-location"></i> Buscar Rosto
+        <button type="submit" class="btn btn-primary btn-block mt-3" id="search-button" style="display: none;">
+            <i class="fas fa-search-location"></i> Buscar rosto
         </button>
 
         <div id="search-status" class="status-message"></div>
     </form>
 </section>
+
+<div id="crop-modal" class="modal">
+    <div class="crop-modal-panel">
+        <div class="crop-modal-head">
+            <h3>Ajuste o recorte</h3>
+            <button type="button" class="crop-modal-close" id="crop-modal-close" aria-label="Fechar">&times;</button>
+        </div>
+        <p class="crop-modal-hint">Centralize seu rosto dentro do quadro.</p>
+        <div class="crop-modal-body">
+            <img id="image-to-crop" src="#" alt="Imagem para recortar">
+        </div>
+        <div class="crop-modal-actions">
+            <button type="button" class="btn btn-outline" id="crop-cancel-btn">Cancelar</button>
+            <button type="button" class="btn btn-primary" id="crop-button">
+                <i class="fas fa-crop-alt"></i> Confirmar recorte
+            </button>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -118,7 +57,9 @@
 document.addEventListener('DOMContentLoaded', function () {
     const selfieUploadInput = document.getElementById("selfie-upload");
     const fileNameSearch = document.getElementById("file-name-search");
-    const cropperContainer = document.getElementById("cropper-container");
+    const cropModal = document.getElementById("crop-modal");
+    const cropModalClose = document.getElementById("crop-modal-close");
+    const cropCancelBtn = document.getElementById("crop-cancel-btn");
     const imageToCrop = document.getElementById("image-to-crop");
     const cropButton = document.getElementById("crop-button");
     const imagePreviewSearch = document.getElementById("image-preview-search");
@@ -139,6 +80,26 @@ document.addEventListener('DOMContentLoaded', function () {
         el.style.display = 'none';
     };
 
+    const openCropModal = () => {
+        cropModal.style.display = "flex";
+        document.body.style.overflow = "hidden";
+    };
+
+    const closeCropModal = () => {
+        cropModal.style.display = "none";
+        document.body.style.overflow = "auto";
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+    };
+
+    const resetSelection = () => {
+        closeCropModal();
+        selfieUploadInput.value = "";
+        fileNameSearch.textContent = "Clique aqui ou arraste uma selfie";
+    };
+
     selfieUploadInput.addEventListener("change", () => {
         hideStatusMessage(searchStatus);
         const file = selfieUploadInput.files[0];
@@ -147,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const reader = new FileReader();
             reader.onload = (e) => {
                 imageToCrop.src = e.target.result;
-                cropperContainer.style.display = "block";
+                openCropModal();
                 if (cropper) cropper.destroy();
                 cropper = new Cropper(imageToCrop, {
                     aspectRatio: 1,
@@ -168,11 +129,20 @@ document.addEventListener('DOMContentLoaded', function () {
             if (blob) {
                 croppedImageData = blob;
                 const url = URL.createObjectURL(blob);
-                imagePreviewSearch.innerHTML = `<img src="${url}" alt="Cropped Selfie">`;
-                cropperContainer.style.display = "none";
+                imagePreviewSearch.innerHTML = `<img src="${url}" alt="Selfie recortada">`;
+                closeCropModal();
                 searchButton.style.display = "inline";
             }
         }, "image/jpeg", 0.9);
+    });
+
+    cropModalClose.addEventListener("click", resetSelection);
+    cropCancelBtn.addEventListener("click", resetSelection);
+    cropModal.addEventListener("click", (e) => {
+        if (e.target === cropModal) resetSelection();
+    });
+    window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && cropModal.style.display === "flex") resetSelection();
     });
 
     searchForm.addEventListener("submit", async (e) => {
